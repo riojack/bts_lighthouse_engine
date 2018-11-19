@@ -25,9 +25,7 @@ func main() {
 	}
 
 	for {
-		fmt.Println("Waiting for a connection...")
 		conn, err := listener.Accept()
-		fmt.Println("\tConnection made...")
 
 		if err != nil {
 			fmt.Println(fmt.Errorf("Error after accepting connection :: %f", err))
@@ -63,11 +61,8 @@ ConnectionLoop:
 
 func playGame(username string, sockReader *bufio.Reader, sockWriter *bufio.Writer, conn net.Conn, broadcast chan BroadcastCommand) {
 	defer func() {
-		fmt.Println("Closing game...")
 		conn.Close()
 	}()
-
-	fmt.Printf("\tPlayer %s just logged in... let's play!\n", username)
 
 	go func() {
 		for {
@@ -86,12 +81,10 @@ func playGame(username string, sockReader *bufio.Reader, sockWriter *bufio.Write
 
 GameConnectionLoop:
 	for {
-		fmt.Println("Got here")
 		payloadBytes, err := sockReader.ReadBytes('\n')
 		payload := string(payloadBytes)
 
 		if err == io.EOF {
-			fmt.Println("EOF, quitting")
 			break GameConnectionLoop
 		}
 
@@ -99,9 +92,7 @@ GameConnectionLoop:
 			fmt.Println(err)
 			break GameConnectionLoop
 		}
-		fmt.Println(fmt.Sprintf("\t\tMessage: %s", payload))
 		if payload == ":logout" {
-			fmt.Println("Logging out...")
 			break GameConnectionLoop
 		}
 
@@ -109,10 +100,8 @@ GameConnectionLoop:
 			_, err = sockWriter.WriteString(fmt.Sprintln("You enter City Hall"))
 			broadcast <- BroadcastCommand{sourceUsername: username, command: fmt.Sprintf("%s has entered City Hall and is near you", username)}
 			if err != nil {
-				fmt.Println("Errrrrrrror!")
 			}
 			sockWriter.Flush()
-			fmt.Println("Sent message")
 		}
 	}
 }
